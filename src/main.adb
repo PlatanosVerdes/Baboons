@@ -50,9 +50,9 @@ procedure Main is
 
       -- Presentacion
       if (zona = 0) then
-         Put_Line("Soy el Babuino"&My_Idx'img&" y vengo del NORTE, velocidad: "&velocidad'img);
+         Put_Line("Soy el Babuino Norte"&My_Idx'img&" y voy hacia el SUR, velocidad: "&velocidad'img);
       else
-         Put_Line("   Soy el Babuino"&My_Idx'img&" y vengo del SUR, velocidad: "&velocidad'img);
+         Put_Line("   Soy el Babuino SUR"&My_Idx'img&" y voy hacia el NORTE, velocidad: "&velocidad'img);
       end if; 
       
       -- Pasadas de un babuino por la cuerda  
@@ -90,7 +90,11 @@ procedure Main is
             end if;
 
          else
-            Put_Line("   Sur"&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
+            if (pass = MAX_PASS) then
+               Put_Line("   Sur"&My_Idx'img&": hace la vuelta"& pass'Img &" y acaba!!");
+            else 
+               Put_Line("   Sur"&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
+            end if;
          end if; 
 
       end loop; 
