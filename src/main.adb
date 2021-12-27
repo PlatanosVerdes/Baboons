@@ -8,11 +8,12 @@ use def_monitor;
 procedure Main is
    THREADS : constant integer := 10;        -- Numero de babuinos "total"
    MAX_PASS : constant integer := 3;        -- Numero de veces que un babuino pasa por la cuerda
-   MAX_RANDOM: constant integer := 15;      -- Maximo valor aleatorio 
+   MIN_RANDOM: constant integer := 5;       -- Minimo valor aleatorio
+   MAX_RANDOM: constant integer := 10;      -- Maximo valor aleatorio 
 
    -- Random number generator
    -- Use: Random(G)
-   subtype RANDOM_RANGE is Integer range 1 .. MAX_RANDOM;
+   subtype RANDOM_RANGE is Integer range MIN_RANDOM .. MAX_RANDOM;
 
    package R is new
       Ada.Numerics.Discrete_Random (RANDOM_RANGE);
@@ -49,9 +50,9 @@ procedure Main is
 
       -- Presentacion
       if (zona = 0) then
-         Put_Line("Soy el Babuino"&My_Idx'img&" y vengo del NORTE");
+         Put_Line("Soy el Babuino"&My_Idx'img&" y vengo del NORTE, velocidad: "&velocidad'img);
       else
-         Put_Line("   Soy el Babuino"&My_Idx'img&" y vengo del SUR");
+         Put_Line("   Soy el Babuino"&My_Idx'img&" y vengo del SUR, velocidad: "&velocidad'img);
       end if; 
       
       -- Pasadas de un babuino por la cuerda  
@@ -83,12 +84,11 @@ procedure Main is
          delay(Duration(velocidad));
          if (zona = 0) then
             if (pass = MAX_PASS) then
-            
+               Put_Line("Norte"&My_Idx'img&": hace la vuelta"& pass'Img &" y acaba!!");
             else 
-            
+               Put_Line("Norte"&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
             end if;
 
-            Put_Line("Norte"&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
          else
             Put_Line("   Sur"&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
          end if; 
