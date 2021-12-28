@@ -1,10 +1,10 @@
 package def_monitor is
 
    protected type BaboonsMonitor is
-      entry bnNthLock;
-      procedure bnNthUnlock;
-      entry bnSthLock;
-      procedure bnSthUnlock;
+      entry baboonNthLock;
+      procedure baboonNthUnlock;
+      entry baboonSthLock;
+      procedure baboonSthUnlock;
 
    private
       MaxBaboons: Integer := 3;

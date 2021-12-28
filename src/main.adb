@@ -1,15 +1,19 @@
+-- with Ada.Integer.Text_IO; use Ada.Integer.Text_IO;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Numerics.Discrete_Random;
+with Ada.Characters.Latin_1; use Ada.Characters.Latin_1;
 with def_monitor;
 use def_monitor;
 
 -- Compilar: gnatmake main.adb | .\main.exe
 
 procedure Main is
-   THREADS : constant integer := 10;        -- Numero de babuinos "total"
-   MAX_PASS : constant integer := 3;        -- Numero de veces que un babuino pasa por la cuerda
-   MIN_RANDOM: constant integer := 5;       -- Minimo valor aleatorio
-   MAX_RANDOM: constant integer := 10;      -- Maximo valor aleatorio 
+   THREADS : constant integer := 10;                        -- Numero de babuinos "total"
+   MAX_PASS : constant integer := 3;                        -- Numero de veces que un babuino pasa por la cuerda
+   MIN_RANDOM: constant integer := 1;                       -- Minimo valor aleatorio
+   MAX_RANDOM: constant integer := 5;                       -- Maximo valor aleatorio 
+   NORT: constant string := ESC & "[1;34m" & "NORTE" & ESC & "[0;37m";   -- Nort format string
+   SUR : constant string := ESC & "[1;36m" & "SUR" & ESC & "[0;37m" ;    -- Sur format string
 
    -- Random number generator
    -- Use: Random(G)
@@ -21,17 +25,61 @@ procedure Main is
    G : Generator;
 
    -- Tipo protegido para las tareas
-   cuerda: BaboonsMonitor; --
+   cuerda: BaboonsMonitor; 
 
-   -- Init task
-   task type babuino is
+   -- Init tasks
+
+   -- Init task Norte 
+   task type babuinoNorte is
       entry Start(idx : in integer);
-   end babuino;
+   end babuinoNorte;
 
    -- Task body
-   task body babuino is
+   task body babuinoNorte is
       My_Idx : integer;    -- Thread number 
-      zona : integer;      -- 0: Norte, 1: Sur
+      velocidad : integer; -- Velocidad del babuino
+   begin
+      accept Start (Idx : in integer) do
+         My_Idx := Idx;
+      end Start;
+
+      -- Velocidad del babuino
+      velocidad := Random(G);
+
+      -- Presentacion
+      Put_Line("Soy el Babuino "&NORT&My_Idx'img&" y voy hacia el " & SUR & " , velocidad: "&velocidad'img);
+      
+      -- Pasadas de un babuino por la cuerda  
+      for pass in 1..MAX_PASS loop
+         -- Pasar por la cuerda 
+         cuerda.baboonNthLock;
+            
+         -- Cruzar
+         delay(Duration(velocidad));
+         -- delay(Duration(Random(G)));
+
+         cuerda.baboonNthUnLock;
+         Put_Line(NORT & My_Idx'Img & " he llegado");
+            
+         -- Volver a la zona correspondiente - delay
+         delay(Duration(velocidad));
+         if (pass = MAX_PASS)then
+            Put_Line(NORT&My_Idx'img&": da la vuelta y acaba!!");
+         else
+            Put_Line(NORT&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
+         end if;
+      end loop; 
+
+   end babuinoNorte;
+
+   -- Init task Sur
+   task type babuinoSur is
+      entry Start(idx : in integer);
+   end babuinoSur;
+
+   -- Task body
+   task body babuinoSur is
+      My_Idx : integer;    -- Thread number 
       velocidad : integer; -- Velocidad del babuino
 
    begin
@@ -42,74 +90,44 @@ procedure Main is
       -- Velocidad del babuino
       velocidad := Random(G);
 
-      -- Declarar si eres babuino del norte o del sur  
-      zona := 0;
-      if (My_Idx <= THREADS / 2) then
-         zona := 1;
-      end if;
-
       -- Presentacion
-      if (zona = 0) then
-         Put_Line("Soy el Babuino Norte"&My_Idx'img&" y voy hacia el SUR, velocidad: "&velocidad'img);
-      else
-         Put_Line("   Soy el Babuino SUR"&My_Idx'img&" y voy hacia el NORTE, velocidad: "&velocidad'img);
-      end if; 
+      Put_Line("Soy el Babuino "&SUR&My_Idx'img&" y voy hacia el "&NORT&" , velocidad: "&velocidad'img);
       
       -- Pasadas de un babuino por la cuerda  
       for pass in 1..MAX_PASS loop
          -- Pasar por la cuerda 
-         if (zona = 0) then
-            -- Babuino del norte
-            cuerda.bnNthLock;
-            
-            -- Cruzar
-            delay(Duration(velocidad));
+         cuerda.baboonSthLock;
 
-            cuerda.bnNthUnlock;
-            Put_Line("Norte" & My_Idx'Img & " he llegado");
-            
-         else
-            -- Babuino del sur
-            cuerda.bnSthLock;
+         -- Cruzar
+         delay(Duration(velocidad));
+         -- delay(Duration(Random(G)));
 
-            -- Cruzar
-            delay(Duration(velocidad));
-
-            cuerda.bnSthUnLock;
-            Put_Line("   Sur" & My_Idx'Img & " he llegado");
-             
-         end if;
-
+         cuerda.baboonSthUnLock;
+         Put_Line(SUR & My_Idx'Img & " he llegado");
+      
          -- Volver a la zona correspondiente - delay
          delay(Duration(velocidad));
-         if (zona = 0) then
-            if (pass = MAX_PASS) then
-               Put_Line("Norte"&My_Idx'img&": hace la vuelta"& pass'Img &" y acaba!!");
-            else 
-               Put_Line("Norte"&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
-            end if;
 
+         if (pass = MAX_PASS)then
+            Put_Line(SUR&My_Idx'img&": da la vuelta y acaba!!");
          else
-            if (pass = MAX_PASS) then
-               Put_Line("   Sur"&My_Idx'img&": hace la vuelta"& pass'Img &" y acaba!!");
-            else 
-               Put_Line("   Sur"&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
-            end if;
-         end if; 
+            Put_Line(SUR&My_Idx'img&": vuelta"& pass'Img &" /"&MAX_PASS'Img);
+         end if;
+      end loop;
+      
+   end babuinoSur;
 
-      end loop; 
-  end babuino;
+   -- Array de babuinos del Norte
+   baboonsNorte : array (1..THREADS/2) of babuinoNorte;
 
-   -- Array de babuinos
-   type baboon_array is array (1..THREADS) of babuino;
-   baboons: baboon_array;
-
+   -- Array de babuinos del Sur
+   baboonsSur : array (1..THREADS/2) of babuinoSur;
 
 begin
    Reset(G); -- Reset de la seed de los valores aleatorios 
-   for Idx in 1..THREADS loop
-      baboons(Idx).Start(Idx);
+   for Idx in 1..THREADS/2 loop
+      baboonsNorte(Idx).Start(Idx);
+      baboonsSur(Idx).Start(Idx);
    end loop;
-
 
 end Main;
