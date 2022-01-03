@@ -1,5 +1,5 @@
--- Autores: Jorge González Pascual & Rubén Palmer Pérez
--- Video: 
+-- Autores: Jorge Gonzalez Pascual & Ruben Palmer Perez
+-- Video: https://youtu.be/Q_lz9EbngB8
 
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Numerics.Discrete_Random;
